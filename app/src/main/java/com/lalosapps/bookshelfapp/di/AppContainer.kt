@@ -1,6 +1,8 @@
 package com.lalosapps.bookshelfapp.di
 
-interface AppContainer {
+import com.lalosapps.bookshelfapp.data.network.BooksApi
 
+interface AppContainer {
+    val booksApi: BooksApi
 }
 
