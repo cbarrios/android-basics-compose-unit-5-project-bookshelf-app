@@ -13,8 +13,8 @@ class MainActivity : ComponentActivity() {
             BookshelfAppTheme {
                 LaunchedEffect(key1 = Unit) {
                     val myApp = application as BookshelfApplication
-                    val list = myApp.container.booksApi.searchBooks()
-                    println(list.body()?.books?.size)
+                    val list = myApp.container.booksRepository.getBooksImages("cicero")
+                    println(list.toString())
                 }
             }
         }

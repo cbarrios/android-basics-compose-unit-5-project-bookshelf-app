@@ -1,6 +1,8 @@
 package com.lalosapps.bookshelfapp.di
 
 import com.lalosapps.bookshelfapp.data.network.BooksApi
+import com.lalosapps.bookshelfapp.data.repository.BooksRepository
+import com.lalosapps.bookshelfapp.data.repository.DefaultBooksRepository
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
@@ -15,5 +17,8 @@ class DefaultAppContainer : AppContainer {
 
     override val booksApi: BooksApi by lazy {
         retrofit.create()
+    }
+    override val booksRepository: BooksRepository by lazy {
+        DefaultBooksRepository(booksApi)
     }
 }
