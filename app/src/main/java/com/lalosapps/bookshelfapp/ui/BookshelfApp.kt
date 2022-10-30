@@ -1,12 +1,17 @@
 package com.lalosapps.bookshelfapp.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
@@ -36,19 +41,22 @@ fun BookshelfApp(
             when (booksUiState) {
                 BooksUiState.Error -> ErrorScreen()
                 BooksUiState.Loading -> LoadingScreen()
-                is BooksUiState.Success -> LazyGridScreen()
+                is BooksUiState.Success -> LazyGridScreen(booksUiState.images)
             }
         }
     }
 }
 
 @Composable
-fun LazyGridScreen() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+fun LazyGridScreen(images: List<String>) {
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(150.dp),
+        modifier = Modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(4.dp)
     ) {
-        Text(text = "Lazy Grid")
+        items(items = images, key = { image -> image }) { image ->
+            PhotoCard(photo = image)
+        }
     }
 }
 
@@ -68,7 +76,10 @@ fun ErrorScreen() {
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        Text(text = "Error")
+        Image(
+            painter = painterResource(id = R.drawable.ic_connection_error),
+            contentDescription = stringResource(R.string.connection_error)
+        )
     }
 }
 
@@ -86,6 +97,8 @@ fun PhotoCard(photo: String, modifier: Modifier = Modifier) {
                 .data(photo)
                 .crossfade(true)
                 .build(),
+            error = painterResource(id = R.drawable.ic_broken_image),
+            placeholder = painterResource(id = R.drawable.loading_img),
             contentDescription = "Photo",
             contentScale = ContentScale.FillBounds
         )

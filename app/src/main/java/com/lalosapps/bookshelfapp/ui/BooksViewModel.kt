@@ -23,7 +23,7 @@ class BooksViewModel(
         getBooksImages()
     }
 
-    private fun getBooksImages(query: String = "cicero") {
+    private fun getBooksImages(query: String = "miami") {
         viewModelScope.launch {
             val result = booksRepository.getBooksImages(query)
             _booksUiState.value = result?.let {
