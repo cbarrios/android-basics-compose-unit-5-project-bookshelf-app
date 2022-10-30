@@ -23,8 +23,10 @@ class BooksViewModel(
         getBooksImages()
     }
 
-    private fun getBooksImages(query: String = "miami") {
+    fun getBooksImages(query: String = "miami") {
+        if (query.isEmpty()) return
         viewModelScope.launch {
+            _booksUiState.value = BooksUiState.Loading
             val result = booksRepository.getBooksImages(query)
             _booksUiState.value = result?.let {
                 BooksUiState.Success(it)

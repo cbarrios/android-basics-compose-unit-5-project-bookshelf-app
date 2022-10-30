@@ -5,14 +5,24 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -39,23 +49,61 @@ fun BookshelfApp(
             color = MaterialTheme.colors.background
         ) {
             when (booksUiState) {
-                BooksUiState.Error -> ErrorScreen()
+                BooksUiState.Error -> ErrorScreen(
+                    onRefreshContent = { viewModel.getBooksImages() }
+                )
                 BooksUiState.Loading -> LoadingScreen()
-                is BooksUiState.Success -> LazyGridScreen(booksUiState.images)
+                is BooksUiState.Success -> LazyGridScreen(
+                    images = booksUiState.images,
+                    onBooksSearch = viewModel::getBooksImages
+                )
             }
         }
     }
 }
 
 @Composable
-fun LazyGridScreen(images: List<String>) {
-    LazyVerticalGrid(
-        columns = GridCells.Adaptive(150.dp),
-        modifier = Modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(4.dp)
-    ) {
-        items(items = images, key = { image -> image }) { image ->
-            PhotoCard(photo = image)
+fun LazyGridScreen(
+    images: List<String>,
+    onBooksSearch: (String) -> Unit
+) {
+    val focusManager = LocalFocusManager.current
+    var query by rememberSaveable { mutableStateOf("") }
+    Column {
+        OutlinedTextField(
+            value = query,
+            onValueChange = { query = it },
+            singleLine = true,
+            placeholder = {
+                Text(text = stringResource(R.string.search))
+            },
+            keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Search
+            ),
+            keyboardActions = KeyboardActions(
+                onSearch = {
+                    focusManager.clearFocus()
+                    onBooksSearch(query)
+                }
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 8.dp, end = 8.dp, top = 8.dp)
+        )
+        if (images.isEmpty()) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text(text = stringResource(R.string.no_results))
+            }
+        } else {
+            LazyVerticalGrid(
+                columns = GridCells.Adaptive(150.dp),
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = PaddingValues(4.dp)
+            ) {
+                items(items = images, key = { image -> image }) { image ->
+                    PhotoCard(photo = image)
+                }
+            }
         }
     }
 }
@@ -71,15 +119,28 @@ fun LoadingScreen() {
 }
 
 @Composable
-fun ErrorScreen() {
+fun ErrorScreen(
+    onRefreshContent: () -> Unit
+) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.ic_connection_error),
-            contentDescription = stringResource(R.string.connection_error)
-        )
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_connection_error),
+                contentDescription = stringResource(R.string.connection_error)
+            )
+            IconButton(onClick = onRefreshContent) {
+                Icon(
+                    imageVector = Icons.Default.Refresh,
+                    contentDescription = stringResource(R.string.refresh)
+                )
+            }
+        }
     }
 }
 

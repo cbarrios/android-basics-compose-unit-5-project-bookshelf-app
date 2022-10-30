@@ -13,7 +13,7 @@ class DefaultBooksRepository(
                 val data = response.body()!!
                 data.books?.let { books ->
                     books.map { book -> book.volumeInfo.imageLinks.httpsThumbnail }
-                }
+                } ?: emptyList()
             } else {
                 null
             }
