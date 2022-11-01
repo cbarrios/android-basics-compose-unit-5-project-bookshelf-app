@@ -1,26 +1,21 @@
 package com.lalosapps.bookshelfapp.fake
 
+import com.lalosapps.bookshelfapp.rules.TestDispatcherRule
 import com.lalosapps.bookshelfapp.ui.BooksUiState
 import com.lalosapps.bookshelfapp.ui.BooksViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
-import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+
 
 @ExperimentalCoroutinesApi
 class BooksViewModelTest {
 
-    @Before
-    fun onBefore() {
-        Dispatchers.setMain(UnconfinedTestDispatcher())
-    }
+    @get:Rule
+    val testDispatcher = TestDispatcherRule()
 
     @Test
     fun booksViewModel_getBooksImages_verifyBooksUiStateSuccess() = runTest {
@@ -89,9 +84,4 @@ class BooksViewModelTest {
                 booksViewModel.booksUiState.value
             )
         }
-
-    @After
-    fun onAfter() {
-        Dispatchers.resetMain()
-    }
 }
