@@ -22,5 +22,5 @@ object FakeDataSource {
 
     val dtoNoBooks = BooksDto(null)
 
-    val images = books.map { it.volumeInfo.imageLinks.httpsThumbnail }
+    val images = books.mapNotNull { it.volumeInfo.imageLinks?.httpsThumbnail }
 }
